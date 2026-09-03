@@ -45,7 +45,7 @@ Good acceptance criteria:
 Build payment-plan page.
 
 ### Better story
-As an eligible customer, I want to review available payment-plan options, so that I can choose a manageable repayment path without waiting for an agent.
+As an eligible customer, I want to review available payment-plan options, so that I can choose a manageable repayment path without waiting for an representative.
 
 ### Weak criteria
 - build page

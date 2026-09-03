@@ -3,5 +3,5 @@ US-01,Verify customer identity,Access and Verification,Identity Verification,acc
 US-03,Display overdue account summary,Account Visibility,Account Summary,review,Show overdue amount and status
 US-05,Capture promise to pay,Payment Journey,Promise to Pay Form,commitment,Record amount and date
 US-06,Check payment-plan eligibility,Payment Journey,Eligibility Result,decision,Route unsupported cases cleanly
-US-09,Route unsupported cases to agent,Routing and Exceptions,Routed to Agent,exception,Preserve context for agent handoff
-US-11,Show portal interaction history to agents,Reporting and Visibility,N/A,back_office,May not appear as customer-facing screen
+US-09,Route unsupported cases to representative,Routing and Exceptions,Routed to Representative,exception,Preserve context for representative handoff
+US-11,Show portal interaction history to representatives,Reporting and Visibility,N/A,back_office,May not appear as customer-facing screen

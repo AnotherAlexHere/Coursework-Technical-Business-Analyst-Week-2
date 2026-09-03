@@ -10,7 +10,7 @@ This guide helps you keep your prototype focused on logic rather than polish.
 - choose next action
 - promise-to-pay or payment-plan journey
 - confirmation page
-- unsupported or routed-to-agent page
+- unsupported or routed-to-representative page
 
 ## What to annotate on every major screen
 
@@ -33,11 +33,11 @@ At minimum, show one or more of these:
 - failed verification
 - ineligible payment-plan result
 - abandoned journey follow-up logic
-- routed-to-agent support outcome
+- routed-to-representative support outcome
 
 ## Review prompt
 
 Ask during stakeholder review:
 - Is any key step missing?
 - Does the exception path make operational sense?
-- Would an agent have enough context if this case is routed?
+- Would an representative have enough context if this case is routed?

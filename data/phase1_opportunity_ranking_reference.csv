@@ -2,6 +2,6 @@ rank,opportunity_name,value_case_summary,effort_level,confidence_level,phase1_fi
 1,Eligible payment-plan selection,High operational value plus revenue uplift,Medium,Medium,High,Strong candidate if tightly rules-based
 2,Digital promise-to-pay capture,High volume and low-medium complexity,Low-Medium,Medium,High,Useful early win
 3,Self-serve account summary,Foundational for customer self-service,Low,High,High,Enables other journeys
-4,Rules-based agent routing,Operational trust and exception control,Medium,High,High,Important for adoption
+4,Rules-based representative routing,Operational trust and exception control,Medium,High,High,Important for adoption
 5,Contact detail update request,Useful but lower direct financial impact,Low,Medium,Medium,May be P2 if scope is tight
 6,Advanced hardship workflow,Potential value but high judgement and complexity,High,Low,Low,Keep out of Phase 1

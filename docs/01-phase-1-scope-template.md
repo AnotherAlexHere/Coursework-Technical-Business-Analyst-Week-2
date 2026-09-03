@@ -11,7 +11,7 @@ Starter examples:
 - account summary and eligible actions
 - promise-to-pay capture
 - eligible payment-plan selection
-- rules-based routing to agents
+- rules-based routing to representatives
 - portal outcome reporting
 
 ## Out of scope
@@ -41,7 +41,7 @@ Note the most important delivery and operating constraints.
 Examples:
 - legacy system data availability
 - compliance approval for messages and audit trail
-- agent workflow alignment for routed cases
+- representative workflow alignment for routed cases
 
 ## Why this scope is credible
 

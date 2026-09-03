@@ -7,7 +7,7 @@ Use this as a starter for your PowerPoint or slide deck.
 Write the answer first.
 
 Example structure:
-> Approve a focused Phase 1 Smart-Recovery portal that digitises simple self-serve debt recovery journeys while routing unsupported cases to agents with full context.
+> Approve a focused Phase 1 Smart-Recovery portal that digitises simple self-serve debt recovery journeys while routing unsupported cases to representatives with full context.
 
 ## Slide 2 - Why the problem matters now
 
@@ -55,7 +55,7 @@ Cover:
 ## Slide 8 - Change risks and mitigations
 
 Use ADKAR-driven points such as:
-- agent trust
+- representative trust
 - manager visibility
 - reporting and reinforcement needs
 
