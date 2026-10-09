@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Representative Portal - Smart-Recovery</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="banner">Prototype only: all data is fictional.</div>
+<header class="top"><strong>Representative Portal</strong><a href="index.html">Exit</a></header>
+<main class="wide">
+
+<section id="login" class="card">
+  <h2>Representative sign in</h2>
+  <form id="loginForm" autocomplete="off">
+    <label for="repPin">Demo access code</label>
+    <input id="repPin" type="password" required>
+    <p class="error" id="loginErr" role="alert"></p>
+    <button type="submit">Sign in</button>
+  </form>
+  <div class="notice">Demo code: rep123</div>
+</section>
+
+<div id="app" hidden>
+  <section class="card">
+    <h2>Reporting</h2>
+    <div class="grid" id="metrics"></div>
+  </section>
+  <section class="card">
+    <h2>Routed cases</h2>
+    <table><thead><tr><th>Ref</th><th>Customer</th><th>Reason</th><th>Time</th><th></th></tr></thead><tbody id="cases"></tbody></table>
+  </section>
+  <section class="card" id="detail" hidden>
+    <h2>Customer view (read-only)</h2>
+    <div id="detailBody"></div>
+    <h3>Audit trail</h3>
+    <table><tbody id="trail"></tbody></table>
+  </section>
+  <button id="clear" class="secondary">Reset demo data</button>
+  <button id="out" class="secondary">Sign out</button>
+</div>
+</main>
+<script src="app.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const REP_PIN = "rep123";
+
+$("loginForm").onsubmit = e => {
+  e.preventDefault();
+  if ($("repPin").value !== REP_PIN) { $("loginErr").textContent = "Incorrect code."; return; }
+  audit("rep", "rep_login", null);
+  $("login").hidden = true; $("app").hidden = false;
+  render();
+};
+
+function render() {
+  const log = read(AUDIT_KEY), cases = read(CASE_KEY);
+  const n = ev => log.filter(l => l.event === ev).length;
+  const started = n("session_start"), completed = n("p2p_created") + n("plan_selected"), routed = n("routed_to_rep");
+  const settled = log.filter(l => l.event === "p2p_created" || l.event === "plan_selected").length;
+  const m = [["Sessions started", started], ["Self-service resolved", completed], ["Escalated to rep", routed],
+    ["Drop-offs", n("dropped_off")], ["Conversion", started ? Math.round(completed / started * 100) + "%" : "0%"], ["Failed verifications", n("verify_fail")]];
+  $("metrics").innerHTML = m.map(x => `<div class="metric">${esc(x[0])}<b>${esc(x[1])}</b></div>`).join("");
+  $("cases").innerHTML = cases.map(c => `<tr><td>${esc(c.ref)}</td><td>${esc(c.cust)}</td><td>${esc(c.reason)}</td><td>${esc(new Date(c.ts).toLocaleString())}</td><td><button class="secondary" data-c="${esc(c.cust)}" data-r="${esc(c.ref)}">Open</button></td></tr>`).join("") || "<tr><td colspan=5>No routed cases yet.</td></tr>";
+  document.querySelectorAll("[data-c]").forEach(b => b.onclick = () => open(b.dataset.c, b.dataset.r));
+}
+
+function open(id, ref) {
+  const c = CUSTOMERS[id];
+  audit("rep", "case_opened", id, ref);
+  $("detailBody").innerHTML = c
+    ? `<p>${esc(c.name)} | ${esc(c.product)} ending ${esc(c.acct)}<br>Overdue ${gbp(c.overdue)} of ${gbp(c.balance)} total, due ${esc(c.due)}</p>`
+    : "<p>Customer not verified; no account data shown.</p>";
+  $("trail").innerHTML = read(AUDIT_KEY).filter(l => l.cust === id)
+    .map(l => `<tr><td>${esc(new Date(l.ts).toLocaleString())}</td><td>${esc(l.actor)}</td><td>${esc(l.event)}</td><td>${esc(l.detail)}</td></tr>`).join("");
+  $("detail").hidden = false;
+}
+
+$("clear").onclick = () => { localStorage.removeItem(AUDIT_KEY); localStorage.removeItem(CASE_KEY); $("detail").hidden = true; render(); };
+$("out").onclick = () => location.reload();
+</script>
+</body>
+</html>

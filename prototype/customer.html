@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Customer Portal - Smart-Recovery</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="banner">Prototype only: all data is fictional.</div>
+<header class="top"><strong>Customer Portal</strong><a href="index.html">Exit</a></header>
+<main>
+
+<section id="landing" class="card">
+  <h1>Manage your overdue balance</h1>
+  <p>We can help you view what you owe and agree a way to pay. If you need more support, we will connect you with a colleague.</p>
+  <div class="notice">We use your details only to verify you and manage your account. Your actions are recorded for your protection and ours.</div>
+  <button id="start">Get started</button>
+</section>
+
+<section id="verify" class="card" hidden>
+  <h2>Verify your identity</h2>
+  <form id="verifyForm" autocomplete="off">
+    <label for="custId">Customer ID</label>
+    <input id="custId" required>
+    <label for="otp">One-time code (sent to your registered phone)</label>
+    <input id="otp" inputmode="numeric" maxlength="6" required>
+    <p class="error" id="verifyErr" role="alert"></p>
+    <button type="submit">Verify</button>
+  </form>
+</section>
+
+<section id="summary" class="card" hidden>
+  <h2>Account summary</h2>
+  <p id="sumWho"></p>
+  <p>Overdue amount<br><span class="amount" id="sumOverdue"></span></p>
+  <table>
+    <tr><th>Total balance</th><td id="sumBal"></td></tr>
+    <tr><th>Payment was due</th><td id="sumDue"></td></tr>
+  </table>
+  <h3>Breakdown</h3>
+  <table id="sumFees"></table>
+  <button id="toActions">Continue</button>
+</section>
+
+<section id="actions" class="card" hidden>
+  <h2>Choose what to do next</h2>
+  <button id="goP2P">Promise to pay</button>
+  <button id="goPlan" class="secondary">Payment plan</button>
+  <button id="goRep" class="secondary">Speak to a representative</button>
+</section>
+
+<section id="p2p" class="card" hidden>
+  <h2>Promise to pay</h2>
+  <p>Promise to pay your overdue amount in full by a date within the next 14 days.</p>
+  <form id="p2pForm">
+    <label for="p2pDate">Payment date</label>
+    <input type="date" id="p2pDate" required>
+    <p class="error" id="p2pErr" role="alert"></p>
+    <div class="notice">By confirming, you agree to pay <strong id="p2pAmt"></strong> by this date.</div>
+    <button type="submit">Confirm promise</button>
+    <button type="button" class="secondary" data-back="actions">Back</button>
+  </form>
+</section>
+
+<section id="plan" class="card" hidden>
+  <h2>Payment plan <span class="tag">pre-approved options</span></h2>
+  <form id="planForm"><div id="planOpts"></div>
+    <p class="error" id="planErr" role="alert"></p>
+    <button type="submit">Confirm plan</button>
+    <button type="button" class="secondary" data-back="actions">Back</button>
+  </form>
+</section>
+
+<section id="confirm" class="card" hidden>
+  <h2>Confirmed</h2>
+  <p id="confirmMsg"></p>
+  <p>Reference: <strong id="confirmRef"></strong></p>
+  <h3>What happens next</h3>
+  <ul><li>Your account status is updated.</li><li>You will receive a confirmation message.</li><li>If you cannot keep to this, contact us before the date.</li></ul>
+  <button id="finish">Sign out</button>
+</section>
+
+<section id="routed" class="card" hidden>
+  <h2>We are passing you to a colleague</h2>
+  <p id="routedMsg"></p>
+  <p>Case reference: <strong id="routedRef"></strong></p>
+  <p>A representative will contact you using your registered details. You do not need to repeat what you have done here.</p>
+  <button id="finish2">Sign out</button>
+</section>
+
+<section id="loggedOut" class="card" hidden>
+  <h2>You have been signed out</h2>
+  <p id="outMsg">Thank you. Your details are no longer shown.</p>
+  <a class="btn" href="index.html">Home</a>
+</section>
+
+</main>
+<script src="app.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const screens = ["landing","verify","summary","actions","p2p","plan","confirm","routed","loggedOut"];
+let cust = null, custId = null, fails = 0, done = false, timer = null;
+const show = id => { screens.forEach(s => $(s).hidden = s !== id); };
+
+function resetTimer() {
+  clearTimeout(timer);
+  if (cust) timer = setTimeout(() => signOut("Signed out after 2 minutes of inactivity."), 120000);
+}
+["click","keydown"].forEach(e => document.addEventListener(e, resetTimer));
+
+function signOut(msg) {
+  if (cust && !done) audit("customer", "dropped_off", custId, "signed out before completion");
+  cust = null; custId = null; clearTimeout(timer);
+  ["custId","otp"].forEach(i => $(i).value = "");
+  if (msg) $("outMsg").textContent = msg;
+  show("loggedOut");
+}
+
+function routeTo(reason, msg) {
+  const ref = openCase(custId, reason);
+  done = true;
+  $("routedMsg").textContent = msg;
+  $("routedRef").textContent = ref;
+  show("routed");
+}
+
+$("start").onclick = () => { fails = 0; done = false; audit("customer", "session_start", null); show("verify"); };
+
+$("verifyForm").onsubmit = e => {
+  e.preventDefault();
+  const id = $("custId").value.trim().toUpperCase();
+  if (CUSTOMERS[id] && $("otp").value === MOCK_OTP) {
+    cust = CUSTOMERS[id]; custId = id;
+    audit("customer", "verify_ok", id);
+    resetTimer();
+    const reason = routeReason(cust);
+    if (reason) {
+      return routeTo(reason, "We are unable to continue online for this account. A colleague can help you with this.");
+    }
+    $("sumWho").textContent = cust.name + " | " + cust.product + " ending " + cust.acct;
+    $("sumOverdue").textContent = gbp(cust.overdue);
+    $("sumBal").textContent = gbp(cust.balance);
+    $("sumDue").textContent = cust.due;
+    $("sumFees").innerHTML = cust.fees.map(f => `<tr><td>${esc(f[0])}</td><td>${gbp(f[1])}</td></tr>`).join("");
+    audit("customer", "balance_viewed", id);
+    show("summary");
+  } else {
+    fails++;
+    audit("customer", "verify_fail", CUSTOMERS[id] ? id : null, "attempt " + fails);
+    if (fails >= 3) {
+      custId = CUSTOMERS[id] ? id : "UNVERIFIED";
+      return routeTo("Failed verification", "We could not verify your identity online. A colleague will help you securely.");
+    }
+    $("verifyErr").textContent = "We could not verify those details. Please try again.";
+  }
+};
+
+$("toActions").onclick = () => show("actions");
+document.querySelectorAll("[data-back]").forEach(b => b.onclick = () => show(b.dataset.back));
+$("goRep").onclick = () => routeTo("Customer requested representative", "Your request has been passed to a colleague.");
+
+$("goP2P").onclick = () => {
+  const d = new Date(), max = new Date(); max.setDate(d.getDate() + 14);
+  $("p2pDate").min = d.toISOString().slice(0, 10);
+  $("p2pDate").max = max.toISOString().slice(0, 10);
+  $("p2pAmt").textContent = gbp(cust.overdue);
+  $("p2pErr").textContent = "";
+  show("p2p");
+};
+$("p2pForm").onsubmit = e => {
+  e.preventDefault();
+  const v = $("p2pDate").value;
+  if (!v || v < $("p2pDate").min || v > $("p2pDate").max) { $("p2pErr").textContent = "Choose a date within the next 14 days."; return; }
+  const ref = "P2P-" + Math.floor(1000 + Math.random() * 9000);
+  audit("customer", "p2p_created", custId, gbp(cust.overdue) + " by " + v + " " + ref);
+  done = true;
+  $("confirmMsg").textContent = "You promised to pay " + gbp(cust.overdue) + " by " + v + ".";
+  $("confirmRef").textContent = ref;
+  show("confirm");
+};
+
+$("goPlan").onclick = () => {
+  const opts = planOptions(cust);
+  $("planErr").textContent = "";
+  if (!opts.length) return routeTo("No pre-approved plan available", "No online plan is available for this account. A colleague can help you.");
+  $("planOpts").innerHTML = opts.map(o => `<div class="option"><input type="radio" name="plan" id="pl${o.id}" value="${o.id}"><label for="pl${o.id}">${o.months} monthly payments of ${gbp(o.monthly)}</label></div>`).join("");
+  show("plan");
+};
+$("planForm").onsubmit = e => {
+  e.preventDefault();
+  const sel = document.querySelector("input[name=plan]:checked");
+  if (!sel) { $("planErr").textContent = "Select a plan to continue."; return; }
+  const opt = planOptions(cust).find(o => o.id === sel.value);
+  const ref = "PLAN-" + Math.floor(1000 + Math.random() * 9000);
+  audit("customer", "plan_selected", custId, opt.months + " x " + gbp(opt.monthly) + " " + ref);
+  done = true;
+  $("confirmMsg").textContent = "Your plan: " + opt.months + " monthly payments of " + gbp(opt.monthly) + ".";
+  $("confirmRef").textContent = ref;
+  show("confirm");
+};
+
+$("finish").onclick = $("finish2").onclick = () => signOut();
+</script>
+</body>
+</html>

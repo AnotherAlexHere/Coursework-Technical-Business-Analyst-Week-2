@@ -1,0 +1,27 @@
+:root { --navy:#12304f; --blue:#1f6feb; --grey:#f3f5f8; --line:#d5dbe3; --warn:#fff4d6; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif; background:var(--grey); color:#1b2430; line-height:1.5; }
+.banner { background:var(--warn); border-bottom:1px solid #e6cf85; padding:6px 16px; font-size:.85rem; text-align:center; }
+header.top { background:var(--navy); color:#fff; padding:14px 24px; display:flex; justify-content:space-between; align-items:center; }
+header.top a { color:#fff; }
+main { max-width:760px; margin:24px auto; padding:0 16px; }
+main.wide { max-width:1000px; }
+.card { background:#fff; border:1px solid var(--line); border-radius:8px; padding:24px; margin-bottom:16px; }
+h1 { font-size:1.6rem; margin-top:0; } h2 { font-size:1.25rem; margin-top:0; }
+label { display:block; font-weight:600; margin:12px 0 4px; }
+input, select { width:100%; padding:10px; border:1px solid var(--line); border-radius:6px; font-size:1rem; }
+button, .btn { display:inline-block; background:var(--blue); color:#fff; border:0; border-radius:6px; padding:10px 18px; font-size:1rem; cursor:pointer; text-decoration:none; margin:12px 8px 0 0; }
+button.secondary, .btn.secondary { background:#fff; color:var(--blue); border:1px solid var(--blue); }
+button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid #ffbf47; }
+table { width:100%; border-collapse:collapse; }
+th, td { text-align:left; padding:8px; border-bottom:1px solid var(--line); font-size:.95rem; }
+.amount { font-size:1.8rem; font-weight:700; color:#b42318; }
+.notice { background:#eef4ff; border-left:4px solid var(--blue); padding:10px 14px; margin:12px 0; font-size:.9rem; }
+.error { color:#b42318; font-weight:600; min-height:1.2em; }
+.option { border:1px solid var(--line); border-radius:6px; padding:12px; margin:8px 0; display:flex; gap:10px; align-items:flex-start; }
+.option input { width:auto; margin-top:5px; }
+.option label { margin:0; font-weight:400; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; }
+.metric { background:var(--grey); border-radius:6px; padding:12px; } .metric b { display:block; font-size:1.5rem; }
+.tag { font-size:.75rem; background:#e3e8ef; border-radius:4px; padding:2px 6px; }
+[hidden] { display:none !important; }
